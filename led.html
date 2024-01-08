@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LED Control</title>
+    <script>
+        function sendRequest(color) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.send(color + "_button=on");
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    console.log("Request successful");
+                }
+            };
+        }
+    </script>
+</head>
+<body>
+    <h1>LED Control</h1>
+    <button onclick="sendRequest('red')">Turn On Red LED</button>
+    <button onclick="sendRequest('blue')">Turn On Blue LED</button>
+    <button onclick="sendRequest('green')">Turn On Green LED</button>
+    <button onclick="sendRequest('sky')">Turn On sky LED</button>
+    <button onclick="sendRequest('clear')">Turn On clear LED</button>
+</body>
+</html>
+
