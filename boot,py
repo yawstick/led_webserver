@@ -1,0 +1,12 @@
+import network
+
+station = network.WLAN(network.STA_IF)
+station.active(True)
+station.connect('network_id', 'password')
+
+while station.isconnected() == False:
+  pass
+
+print('Connection successful')
+print(station.ifconfig())
+
