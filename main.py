@@ -5,8 +5,9 @@ import network
 import uasyncio as asyncio
 import usocket as socket
 import ujson
+import time
 
-n = 90
+n = 60
 p = 16
 
 np = neopixel.NeoPixel(machine.Pin(p), n)
@@ -16,7 +17,6 @@ def set_color(r, g, b):
         np[i] = (r, g, b)
     np.write()
 
-# Your LED control functions go here
 def turn_on_red_led():
     set_color(100, 0, 0)
     print("Red LED turned on")
@@ -38,9 +38,34 @@ def turn_on_clear_led():
     np[i] = (0, 0, 0)
     np.write()
     
+def wheel(pos):
+  if pos < 0 or pos > 255:
+    return (0, 0, 0)
+  if pos < 85:
+    return (255 - pos * 3, pos * 3, 0)
+  if pos < 170:
+    pos -= 85
+    return (0, 255 - pos * 3, pos * 3)
+  pos -= 170
+  return (pos * 3, 0, 255 - pos * 3)
+wheel(30)
+
+
+def rainbow():
+  for j in range(1000):
+    for i in range(n):
+      rc_index = (i * 256 // n) + j
+      np[i] = wheel(rc_index & 255)
+      #print (np[i])
+    np.write()
+    time.sleep_ms(50)
+  turn_on_clear_led()  
+                  
+
 
 # Request handler for handling incoming HTTP requests
-# Request handler for handling incoming HTTP requests
+
+
 async def handle_request(reader, writer):
     try:
         request = await reader.read(4096)
@@ -65,7 +90,9 @@ async def handle_request(reader, writer):
             elif "sky" in color:
                 turn_on_sky_led()
             elif "clear" in color:
-                turn_on_clear_led()    
+                turn_on_clear_led()
+            elif "rainbow" in color:
+                rainbow()     
 
             # Send a simple response back to the client
             response = f"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\nLED control successful for {color}!"
@@ -75,6 +102,7 @@ async def handle_request(reader, writer):
         print("Error handling request:", e)
     finally:
         await writer.aclose()
+
 
 # Create an asyncio event loop
 loop = asyncio.get_event_loop()
